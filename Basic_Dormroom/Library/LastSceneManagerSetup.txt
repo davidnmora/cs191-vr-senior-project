@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/piston workstation.unity
+- path: Assets/Scenes/workstation_w_buttons.unity
   isLoaded: 1
   isActive: 1
