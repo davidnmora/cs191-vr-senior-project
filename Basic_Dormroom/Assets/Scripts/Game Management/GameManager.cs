@@ -90,9 +90,6 @@ public class GameManager : Singleton<GameManager> {
 		grabbedAtoms = GameObject.FindGameObjectsWithTag("GrabbedAtom");
 		if (grabbedAtoms.Length >= 2) { // TOUCH TO DO: should be == for touch controllers
 			updateElectronShareText();
-			if (false /* Button.PrimaryThumbstick (press) || Button.SecondaryThumbstick (press) */) {
-				evalReaction();
-			}
 		} else {
 			GetComponent<TextMesh>().text = "";
 		}
@@ -103,8 +100,11 @@ public class GameManager : Singleton<GameManager> {
 		if (dist <= reactionDistThreshold) {
 			transform.LookAt(Camera.main.transform);
 			transform.position = midpoint(grabbedAtoms[0].transform.position, grabbedAtoms[1].transform.position);
-			int numElectrons = (dist/reactionDistThreshold) > 0.65 ? 1 : 2; // outer 35% shares 1, inner 65% shares 2 (sweet spot)
-			GetComponent<TextMesh>().text = "Share " + numElectrons.ToString() + "\nelectron" + (numElectrons == 1 ? "" : "s");
+			int numElectronsToShare = (dist/reactionDistThreshold) > 0.65 ? 1 : 2; // outer 35% shares 1, inner 65% shares 2 (sweet spot)
+			GetComponent<TextMesh>().text = "Share " + numElectronsToShare.ToString() + "\nelectron" + (numElectronsToShare == 1 ? "" : "s");
+			if (false /* Button.PrimaryThumbstick (press) || Button.SecondaryThumbstick (press) */) {
+				evalReaction(numElectronsToShare);
+			}
 		} else {
 			GetComponent<TextMesh>().text = "";
 		}
@@ -114,13 +114,16 @@ public class GameManager : Singleton<GameManager> {
 		return (a + b)/2;
 	}
 
-	private void evalReaction() {
+	// Evaluates if reaction would satisfy both atoms with 8 electrons, triggers event with result
+	private void evalReaction(int numElectronsToShare) {
 		// see if reaction could happen (e.g. both would now have 8 electrons)
-		var reactionSucceeded = true; // TO DO: evaluate if it actually is
+		AtomController atom0 = grabbedAtoms[0].GetComponent<AtomController>();
+		AtomController atom1 = grabbedAtoms[1].GetComponent<AtomController>();
+		bool atom0Gets8 = (atom0.numTotalElectrons() + numElectronsToShare) == 8;
+		bool atom1Gets8 = (atom1.numTotalElectrons() + numElectronsToShare) == 8;
+		var reactionSucceeded = atom0Gets8 && atom1Gets8; 
 		if (OnReactionAttempted != null) OnReactionAttempted(grabbedAtoms[0], grabbedAtoms[1], reactionSucceeded); // broadcast to event listeners
 	}
-
-
 
 }
 
