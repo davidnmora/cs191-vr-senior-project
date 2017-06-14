@@ -5,6 +5,9 @@ using UnityEngine;
 // GameManager exists to store and track global variables
 public class GameManager : Singleton<GameManager> { 
 	protected GameManager() {}	
+	// Audio
+	private AudioSource audio;
+	public AudioClip backgroundHum;
 	// Atom interaction
 	private GameObject[] grabbedAtoms;
 	private float reactionDistThreshold = 1.7f;
@@ -29,6 +32,9 @@ public class GameManager : Singleton<GameManager> {
 
 	// Use THIS for initialization
 	void Awake () {
+		audio = GetComponent<AudioSource>();
+		audio.PlayOneShot(backgroundHum, 0.1f);
+
         Debug.Log("Press down SPACEBAR/right thumbstick to start game.");
 		gameState = -1;
 		// hide the touch controllers' sphere colliders

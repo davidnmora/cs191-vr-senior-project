@@ -19,7 +19,7 @@ public class Vendetta_1_EightElectronsController : MonoBehaviour {
 		GameObject.Find("Vendetta_1_Generate8Atoms").GetComponent<Generate8Atoms>().instantiate8Atoms();
 		audio = GetComponent<AudioSource>();
 		audio.PlayOneShot(introClip, 0.5F);
-		Invoke("runChallenge", /*after*/ introClip.length);
+		Invoke("runChallenge", /*after*/ /*introClip.length*/ 3);
 	}
 	
 	// Initiates challenge, seting up completion listener 
