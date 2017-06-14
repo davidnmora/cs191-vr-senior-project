@@ -6,7 +6,6 @@ public class AtomController : MonoBehaviour {
 	// Scripts
 	public GameManager gm;
 	public GameObject AtomInfoTextController;
-	// public OVRGrabbable OVRG; // TOUCH TO DO: DRAG OVR INTO THIS IN LAB SCENE
 	// Audio
 	public AudioClip zap;
 	public AudioClip zing;
@@ -31,9 +30,9 @@ public class AtomController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		// If held by controller
-		if (/* OVRG.isGrabbed */ true) { // TOUCH TO DO
+		if (GetComponent<OVRGrabbable>().isGrabbed) { 
 			this.gameObject.tag = "GrabbedAtom";
-			AtomInfoTextController.SetActive(true); // display count above it
+			AtomInfoTextController.SetActive(true); // display electron info above it
 		} else {
 			this.gameObject.tag = "Untagged";
 			AtomInfoTextController.SetActive(false);
@@ -64,7 +63,6 @@ public class AtomController : MonoBehaviour {
 
 	// COLLISIONS AND INTERACTIONS
 	void OnTriggerEnter(Collider other) {
-		Debug.Log("Collision with atom: " + other.gameObject.name);
 		handleElectronCollision(other.gameObject);
 		
 	}

@@ -14,6 +14,7 @@ public class AtomInfoTextController : MonoBehaviour {
 	void Update () {
 		GetComponent<TextMesh>().text = updateElectronInfo();
 		transform.LookAt(Camera.main.transform);
+		transform.position = atom.transform.position + new Vector3(0f, 0.8f, 0f);
 	}
 
 	public string updateElectronInfo() {

@@ -7,7 +7,7 @@ public class GameManager : Singleton<GameManager> {
 	protected GameManager() {}	
 	// Atom interaction
 	private GameObject[] grabbedAtoms;
-	private float reactionDistThreshold = 5;
+	private float reactionDistThreshold = 1.7f;
 	// State 
 	private string[] GameStates = {
 		"ManagerIntro",
@@ -24,20 +24,23 @@ public class GameManager : Singleton<GameManager> {
 	public Vendetta_2_IonicController Vendetta_2_Ionic;
 	public Vendetta_3_CovalentController Vendetta_3_Covalent;
 	// Events
-	public delegate void ReactionAttempted(GameObject atom1, GameObject atom2, bool reactionSucceeded);
-	public static event ReactionAttempted OnReactionAttempted;
+	public delegate void ReactionAttempted(GameObject atom1, GameObject atom2, bool reactionSucceededIonic, bool reactionSucceededCovalent);
+	public event ReactionAttempted OnReactionAttempted;
 
 	// Use THIS for initialization
 	void Awake () {
-        Debug.Log("Press SPACEBAR to start game.");
+        Debug.Log("Press down SPACEBAR/right thumbstick to start game.");
 		gameState = -1;
+		// hide the touch controllers' sphere colliders
+		GameObject.Find("LeftHandColliderSphere" ).GetComponent<Renderer>().material.color = new Color(0f, 0f, 0f, 0f);
+		GameObject.Find("RightHandColliderSphere").GetComponent<Renderer>().material.color = new Color(0f, 0f, 0f, 0f);
 	}
 	
 	// Update is called once per frame
 	bool firstTime = true;
-	void Update () {
+	void Update () {     
 		// press space bar to begin game 
-		if (Input.GetKeyDown("space") && firstTime) {
+		if (firstTime && (Input.GetKeyDown("space") || OVRInput.Get(OVRInput.Button.SecondaryThumbstick))) {
             Debug.Log("Starting Game!");
 			advanceGameState(); 
 			firstTime = false;
@@ -90,21 +93,22 @@ public class GameManager : Singleton<GameManager> {
 
 	private void handleAtomInteraction() {
 		grabbedAtoms = GameObject.FindGameObjectsWithTag("GrabbedAtom");
-		if ((grabbedAtoms != null) && grabbedAtoms.Length >= 2) { // TOUCH TO DO: should be == for touch controllers
-			updateElectronShareText();
+		if ((grabbedAtoms != null) && grabbedAtoms.Length == 2) { // TOUCH TO DO: should be == for touch controllers
+			handReactionAttempts();
 		} else {
 			GetComponent<TextMesh>().text = "";
 		}
 	}
 
-	private void updateElectronShareText() {
+	private void handReactionAttempts() {
 		float dist = Vector3.Distance(grabbedAtoms[0].transform.position, grabbedAtoms[1].transform.position);
 		if (dist <= reactionDistThreshold) {
 			transform.LookAt(Camera.main.transform);
 			transform.position = midpoint(grabbedAtoms[0].transform.position, grabbedAtoms[1].transform.position);
 			int numElectronsToShare = (dist/reactionDistThreshold) > 0.65 ? 1 : 2; // outer 35% shares 1, inner 65% shares 2 (sweet spot)
-			GetComponent<TextMesh>().text = "Share " + numElectronsToShare.ToString() + "\nelectron" + (numElectronsToShare == 1 ? "" : "s");
-			if (false /* OVRInput.Get(OVRInput.Button.PrimaryThumbstick) || OVRInput.Get(OVRInput.Button.SecondaryThumbstick)*/) {
+			// TO DO: detect ionic-ness and change text? or have a different button press to react ionically...
+			GetComponent<TextMesh>().text = "Share " + numElectronsToShare.ToString() + "\nelectron" + (numElectronsToShare == 1 ? "" : "s") + "\n(click down thumbstick)";
+			if (OVRInput.Get(OVRInput.Button.PrimaryThumbstick) || OVRInput.Get(OVRInput.Button.SecondaryThumbstick)) {
 				evalReaction(numElectronsToShare);
 			}
 		} else {
@@ -118,13 +122,18 @@ public class GameManager : Singleton<GameManager> {
 
 	// Evaluates if reaction would satisfy both atoms with 8 electrons, triggers event with result
 	private void evalReaction(int numElectronsToShare) {
-		// see if reaction could happen (e.g. both would now have 8 electrons)
+		Debug.Log("Evaluating the atoms.");
 		AtomController atom0 = grabbedAtoms[0].GetComponent<AtomController>();
 		AtomController atom1 = grabbedAtoms[1].GetComponent<AtomController>();
+		// Covalent: see if reactions works ionically (one has 8, one loses all valence electrons)
+		 
+		bool reactionSucceededIonic = true; // TO DO: impelment actual checking
+		// Covalent: see if reaction could happen (e.g. both would now have 8 electrons)
 		bool atom0Gets8 = (atom0.numTotalElectrons() + numElectronsToShare) == 8;
 		bool atom1Gets8 = (atom1.numTotalElectrons() + numElectronsToShare) == 8;
-		var reactionSucceeded = atom0Gets8 && atom1Gets8; 
-		if (OnReactionAttempted != null) OnReactionAttempted(grabbedAtoms[0], grabbedAtoms[1], reactionSucceeded); // broadcast to event listeners
+		bool reactionSucceededCovalent = atom0Gets8 && atom1Gets8; 
+		
+		if (OnReactionAttempted != null) OnReactionAttempted(grabbedAtoms[0], grabbedAtoms[1], reactionSucceededIonic, reactionSucceededCovalent); // broadcast to event listeners
 	}
 
 }

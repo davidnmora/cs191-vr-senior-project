@@ -10,15 +10,16 @@ public class ManagerIntroController : MonoBehaviour {
 
 	void Start () {
 		audio = GetComponent<AudioSource>();
-		audio.PlayOneShot(clip, 0.5F);
-		Invoke("advanceGameState", /*after*/ /*clip.length*/ 3);
+		audio.PlayOneShot(clip, 0.4F);
+		// Invoke("advanceGameState", /*after*/ clip.length);
 	}
 	
 	void Update () {
 
 	}
 
-	private void advanceGameState() {
+	// Called by trigger on Electron Container
+	public void advanceGameState() {
 		if (audio.isPlaying) audio.Stop();
 		gm.advanceGameState();
 		Destroy(this.gameObject);
