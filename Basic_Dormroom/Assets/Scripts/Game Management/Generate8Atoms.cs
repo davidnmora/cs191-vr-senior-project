@@ -20,7 +20,7 @@ public class Generate8Atoms : MonoBehaviour {
 		for (int eCount = 0; eCount < 8; eCount++) {
 			// create an AtomPrefab with eCount electrons
 			atoms[eCount] = Instantiate(atomPrefab, transform) as AtomPrefabController;
-			atoms[eCount].transform.position = atomsStartPos.position + new Vector3(eCount * 1.2f, 0, 0);
+			atoms[eCount].transform.position = atomsStartPos.position + new Vector3(eCount * 0.7f, 0, 0);
 			atoms[eCount].numElectrons(eCount + 1);
 		}
 	}
