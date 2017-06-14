@@ -29,6 +29,7 @@ public class GameManager : Singleton<GameManager> {
 
 	// Use THIS for initialization
 	void Awake () {
+        Debug.Log("Press SPACEBAR to start game.");
 		gameState = -1;
 	}
 	
@@ -37,6 +38,7 @@ public class GameManager : Singleton<GameManager> {
 	void Update () {
 		// press space bar to begin game 
 		if (Input.GetKeyDown("space") && firstTime) {
+            Debug.Log("Starting Game!");
 			advanceGameState(); 
 			firstTime = false;
 		}
@@ -88,7 +90,7 @@ public class GameManager : Singleton<GameManager> {
 
 	private void handleAtomInteraction() {
 		grabbedAtoms = GameObject.FindGameObjectsWithTag("GrabbedAtom");
-		if (grabbedAtoms.Length >= 2) { // TOUCH TO DO: should be == for touch controllers
+		if ((grabbedAtoms != null) && grabbedAtoms.Length >= 2) { // TOUCH TO DO: should be == for touch controllers
 			updateElectronShareText();
 		} else {
 			GetComponent<TextMesh>().text = "";
@@ -102,7 +104,7 @@ public class GameManager : Singleton<GameManager> {
 			transform.position = midpoint(grabbedAtoms[0].transform.position, grabbedAtoms[1].transform.position);
 			int numElectronsToShare = (dist/reactionDistThreshold) > 0.65 ? 1 : 2; // outer 35% shares 1, inner 65% shares 2 (sweet spot)
 			GetComponent<TextMesh>().text = "Share " + numElectronsToShare.ToString() + "\nelectron" + (numElectronsToShare == 1 ? "" : "s");
-			if (false /* Button.PrimaryThumbstick (press) || Button.SecondaryThumbstick (press) */) {
+			if (false /* OVRInput.Get(OVRInput.Button.PrimaryThumbstick) || OVRInput.Get(OVRInput.Button.SecondaryThumbstick)*/) {
 				evalReaction(numElectronsToShare);
 			}
 		} else {
